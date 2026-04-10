@@ -41,16 +41,15 @@
 
 ### Domain & Lý Do Chọn
 
-**Domain:** Giáo trình Luật pháp (Giáo trình Luật thi hành án hình sự Việt Nam)
+**Domain:** Luật thi hành án hình sự.
 
 **Tại sao nhóm chọn domain này?**
-> Văn bản luật pháp và giáo trình chuyên ngành có tính logic chặt chẽ, từ vựng mang tính chính xác cao và tham chiếu chéo nhiều. Lựa chọn domain này giúp kiểm tra sự hiệu quả của phần chunking và retrieval một cách trực quan nhất; đòi hỏi hệ thống RAG phải có phương pháp cắt văn bản phù hợp để giữ được trọn vẹn ngữ nghĩa các điều luật.
-
+> Tài liệu này chứa các điều khoản, quy định pháp lý cụ thể, đòi hỏi độ chính xác cao khi truy xuất thông tin. Việc áp dụng RAG cho domain này giúp người dùng (sinh viên, luật sư) tra cứu nhanh các quy định, điều luật mà không cần đọc toàn bộ văn bản.
 ### Data Inventory
 
 | # | Tên tài liệu | Nguồn | Số ký tự | Metadata đã gán |
 |---|--------------|-------|----------|-----------------|
-| 1 | Giáo trình Luật thi hành án hình sự | TRƯỜNG ĐẠI HỌC VINH (data/output.md) | ~265174 | `category`: `law_textbook`, `source`: `đại_học_vinh` |
+| 1 | Giáo trình Luật thi hành án hình sự | https://www.nguyenphuonglaw.com/ (data/output.md) | ~265174 | `category`: `law_textbook`, `source`: `đại_học_vinh` |
 
 ### Metadata Schema
 
@@ -174,14 +173,14 @@ tests/test_solution.py::TestEmbeddingStoreDeleteDocument::test_delete_returns_tr
 
 | Pair | Sentence A | Sentence B | Dự đoán | Actual Score | Đúng? |
 |------|-----------|-----------|---------|--------------|-------|
-| 1 | Người bị kết án tự nguyện bồi thường | Phạm nhân tự giác khắc phục hậu quả | high | 0.436 | Đúng |
-| 2 | Con chó đang nằm ngủ trên nệm | Chú cún đang đánh giấc trên giường | high | 0.513 | Đúng |
-| 3 | Tôi rất yêu màu xanh bầu trời | Tôi rất ghét thiên nhiên | low | 0.518 | Sai |
-| 4 | Mức án tử hình | Nấu ăn trong trại tạm giam | low | 0.236 | Đúng |
-| 5 | Hãng Apple ra mắt điện thoại mới | Tôi vừa mua một quả táo ngon | low | 0.417 | Sai |
+| 1 | Người bị kết án tự nguyện bồi thường | Phạm nhân tự giác khắc phục hậu quả | high | 0.653 | Đúng |
+| 2 | Con chó đang nằm ngủ trên nệm | Chú cún đang đánh giấc trên giường | high | 0.689 | Đúng |
+| 3 | Tôi rất yêu màu xanh bầu trời | Tôi rất ghét thiên nhiên | low | 0.035 | Đúng |
+| 4 | Mức án tử hình | Nấu ăn trong trại tạm giam | low | 0.390 | Đúng |
+| 5 | Hãng Apple ra mắt điện thoại mới | Tôi vừa mua một quả táo ngon | low | 0.594 | Sai |
 
 **Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn nghĩa?**
-> Cặp kết quả gây bất ngờ nhất là cặp số 3 ("yêu màu xanh bầu trời" vs "ghét thiên nhiên"), điểm tương đồng lại đạt rất cao (0.518) dù ý nghĩa cực kỳ đối lập. Điều này cho thấy thuật toán Embedding đôi khi đánh lừa: khi 2 câu chứa cùng một topic (thiên nhiên) và có cấu trúc từ vựng y hệt nhau thì AI có xu hướng xếp sát chúng vào nhau trong không gian vector, bất chấp việc động từ chính (yêu và ghét) đang tạo ra sắc thái đối kháng. Đôi khi AI phân tích theo "Ngữ pháp/Chủ đề" hơn là "Ngữ nghĩa trái ngược".
+> Cặp kết quả gây bất ngờ nhất là cặp số 5 ("Hãng Apple" vs "quả táo ngon"). Tôi dự đoán là 'low' vì ngữ cảnh hoàn toàn khác biệt (công ty công nghệ vs trái cây), nhưng điểm Actual Score lại khá cao (0.594). Điều này cho thấy mô hình Embedding có xu hướng bị nhạy cảm quá mức với các hiện tượng dịch thuật hoặc từ đơn lẻ (Apple = quả táo) mà chưa phân biệt tốt được ngữ cảnh từ đồng âm khác nghĩa (polysemy). Đôi khi thuật toán ánh xạ word-to-word tĩnh mạnh hơn là hiểu logic toàn thể của câu.
 
 ---
 
@@ -216,13 +215,13 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 ## 7. What I Learned (5 điểm — Demo)
 
 **Điều hay nhất tôi học được từ thành viên khác trong nhóm:**
-> *Viết 2-3 câu:*
+> Tôi học được cách tối ưu biểu thức Regex để xử lý những đoạn text có định dạng bất quy tắc. Đồng thời, sự phối hợp nhóm tốt giúp chia nhỏ các module mà không bị xung đột code.
 
 **Điều hay nhất tôi học được từ nhóm khác (qua demo):**
-> *Viết 2-3 câu:*
+>Trả lời: 
 
 **Nếu làm lại, tôi sẽ thay đổi gì trong data strategy?**
-> *Viết 2-3 câu:*
+> Tôi sẽ nắn nót thêm siêu dữ liệu (metadata) cụ thể như số chương, số khoản để hệ thống định vị nguồn cực nhanh. Ngoài ra, tôi sẽ bổ sung thêm các bộ hồ sơ vụ án thực tế để phong phú context.
 
 ---
 
