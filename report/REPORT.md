@@ -1,8 +1,8 @@
 # Báo Cáo Lab 7: Embedding & Vector Store
 
 **Họ tên:** Đỗ Xuân Bằng
-**Nhóm:** [Tên nhóm]
-**Ngày:** [Ngày nộp]
+**Nhóm:** C401_B2
+**Ngày:** 10/4/2026
 
 ---
 
@@ -99,12 +99,16 @@ chunks = chunker.chunk(text)
 
 ### So Sánh Với Thành Viên Khác
 
-| Thành viên | Strategy | Retrieval Score (/10) | Điểm mạnh | Điểm yếu |
+| Thành viên / cấu hình | Strategy | Retrieval Score (/10) | Điểm mạnh | Điểm yếu |
 |-----------|----------|----------------------|-----------|----------|
-| Đỗ Xuân Bằng | CustomChunker (Header) | 9.5/10 | Gom hoàn hảo trọn vẹn ý nghĩa của nguyên một Điều luật, không xé ngữ cảnh. | Có nguy cơ tạo chunk dài vượt mức nếu một Điều luật quá dài. |
+| Lê Thành Long | `RecursiveChunker(chunk_size=800)` + metadata `section` | 8/10 | Dễ triển khai, vẫn bám được heading và đoạn trong `law.md`, phù hợp để làm baseline cá nhân ổn định | Chưa bám sát cấu trúc điều, khoản như các custom strategy nên một số query khó vẫn chưa trúng top-1 |
+| Đỗ Xuân Bằng | `CustomChunker (Header)` | 9.5/10 | Gom khá trọn vẹn ý nghĩa của nguyên một điều luật, hạn chế bị xé ngữ cảnh | Có nguy cơ tạo chunk dài vượt mức nếu một điều luật quá dài |
+| Đỗ Việt Anh | `CustomStrategy (Hybrid)` | 9.8/10 | Bảo toàn tốt tính bao đóng của điều, khoản; có sliding window nên xử lý điều dài vẫn giữ được gối đầu ngữ cảnh | Độ phức tạp tính toán cao hơn một chút so với các phương pháp thuần túy |
+| Lã Thị Linh | `LegalArticleChunker (custom)` | 6.5/10 | Bám cấu trúc pháp lý tốt khi tài liệu đúng format | Khá nhạy với format tài liệu, cần regex robust hơn |
+| Trương Anh Long | `Custom (by sections)` | 9/10 | Giữ nguyên ngữ nghĩa theo từng điều, chương; hạn chế bị cắt nhỏ làm mất context | Phụ thuộc mạnh vào cấu trúc văn bản, khó áp dụng cho dữ liệu phi cấu trúc |
 
-**Strategy nào tốt nhất cho domain này? Tại sao?**
-> Strategy của **Đỗ Xuân Bằng (Custom Markdown Header)** tỏ ra thống trị đối với kiểu dữ liệu Giáo trình Luật. Bởi vì các bộ luật vốn được biên soạn với logic phân nhánh cực kỳ rõ ràng theo CHƯƠNG, KHOẢN, ĐIỀU. Việc nương theo các phân cấp Header đảm bảo cho cỗ máy nhốt trọn 1 mảnh vỡ lớn pháp lý (một chủ đề) vào trong đúng 1 Vector. Điều này giúp độ chiết xuất (Retrieval) mang độ chính xác cực cao mà không lo dính tạp âm câu chữ không liên quan.
+**Strategy nào tốt nhất cho domain này? Tại sao?**  
+Nếu xét theo benchmark của nhóm thì các strategy custom bám cấu trúc điều, khoản, chương của văn bản luật đang cho kết quả tốt hơn rõ rệt so với các chunker generic. Trong đó, `CustomStrategy (Hybrid)` cho điểm cao nhất vì vừa giữ được tính trọn nghĩa của điều luật, vừa có cơ chế gối đầu để không mất ngữ cảnh khi điều quá dài. Tuy vậy, với implementation cá nhân của em trong phạm vi lab này, `RecursiveChunker` vẫn là một lựa chọn khá cân bằng vì dễ triển khai hơn, không phụ thuộc quá mạnh vào format tài liệu nhưng vẫn tận dụng được cấu trúc heading của `law.md`.
 
 ---
 
@@ -218,7 +222,7 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 > Tôi học được cách tối ưu biểu thức Regex để xử lý những đoạn text có định dạng bất quy tắc. Đồng thời, sự phối hợp nhóm tốt giúp chia nhỏ các module mà không bị xung đột code.
 
 **Điều hay nhất tôi học được từ nhóm khác (qua demo):**
->Trả lời: 
+>Trả lời:
 
 **Nếu làm lại, tôi sẽ thay đổi gì trong data strategy?**
 > Tôi sẽ nắn nót thêm siêu dữ liệu (metadata) cụ thể như số chương, số khoản để hệ thống định vị nguồn cực nhanh. Ngoài ra, tôi sẽ bổ sung thêm các bộ hồ sơ vụ án thực tế để phong phú context.
@@ -229,12 +233,12 @@ Chạy 5 benchmark queries của nhóm trên implementation cá nhân của bạ
 
 | Tiêu chí | Loại | Điểm tự đánh giá |
 |----------|------|-------------------|
-| Warm-up | Cá nhân | / 5 |
-| Document selection | Nhóm | / 10 |
-| Chunking strategy | Nhóm | / 15 |
-| My approach | Cá nhân | / 10 |
-| Similarity predictions | Cá nhân | / 5 |
-| Results | Cá nhân | / 10 |
-| Core implementation (tests) | Cá nhân | / 30 |
-| Demo | Nhóm | / 5 |
-| **Tổng** | | **/ 100** |
+| Warm-up | Cá nhân | 5 / 5 |
+| Document selection | Nhóm | 10 / 10 |
+| Chunking strategy | Nhóm | 15 / 15 |
+| My approach | Cá nhân | 10 / 10 |
+| Similarity predictions | Cá nhân | 5 / 5 |
+| Results | Cá nhân | 10 / 10 |
+| Core implementation (tests) | Cá nhân | 30 / 30 |
+| Demo | Nhóm | 5 / 5
+| **Tổng** | | **90 / 90** |
